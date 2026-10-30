@@ -1,5 +1,5 @@
 {
-  "sky-weather": {
+  "sky-weather-wide": {
     "enabled": true,
     "display_duration": 45,
     "ha_url": "http://homeassistant.local:8123",

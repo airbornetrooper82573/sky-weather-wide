@@ -1,5 +1,5 @@
 """
-Sky Weather for LEDMatrix.
+Sky-Weather-Wide for LEDMatrix.
 
 A weather display that follows the sky: the backdrop is coloured by the real sun (night, dawn, day, golden hour,
 dusk), the sun and Moon ride their arcs, the Moon shows its true phase and tilt for this place, and clouds / rain /
@@ -29,7 +29,7 @@ import sky_weather_data as data
 import sky_weather_render as render
 from sky_weather_wide import compose_wide
 
-MODE = "sky_weather"
+MODE = "sky_weather_wide"
 UTC = timezone.utc
 TIMELAPSE = 30.0                     # test_mode: seconds of fast-forwarded day
 DEMO_PAGE = 6.0                      # test_mode: seconds per page after the time-lapse
@@ -93,11 +93,11 @@ class SkyWeatherPlugin(BasePlugin):
 
         if self.test_mode:
             self._request_on_demand(self.get_display_duration() + 2.0)
-            self.logger.info("Sky Weather TEST MODE: a made-up day, no polling")
+            self.logger.info("Sky-Weather-Wide TEST MODE: a made-up day, no polling")
         else:
             threading.Thread(target=self._loop, daemon=True, name="sky-weather-poll").start()
             threading.Thread(target=self._radar_loop, daemon=True, name="sky-weather-radar").start()
-        self.logger.info("Sky Weather ready  pages=%s  W=%d H=%d", self.pages, self.W, self.H)
+        self.logger.info("Sky-Weather-Wide ready  pages=%s  W=%d H=%d", self.pages, self.W, self.H)
 
     # ── config ───────────────────────────────────────────────────────────────
 

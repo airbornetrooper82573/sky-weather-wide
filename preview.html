@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sky Weather — Live Layout Preview</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sky-Weather-Wide — Live Layout Preview</title>
 <style>
 :root{color-scheme:dark;font-family:system-ui,Arial;background:#101827;color:#f5f7ff}*{box-sizing:border-box}body{margin:0;padding:24px;max-width:1100px;margin:auto}h1{font-size:23px;margin:0 0 8px}p{color:#adbace;line-height:1.5}.panel{background:#1c2839;border:1px solid #34465c;border-radius:14px;padding:16px;margin:16px 0}.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:#cbd8e9}input,select,button{background:#111a29;border:1px solid #536880;border-radius:8px;color:white;padding:9px;font:inherit}input[type=range]{padding:4px}button{cursor:pointer}canvas{image-rendering:pixelated;width:100%;height:auto;background:#061426;display:block}#stage{overflow:auto;border:1px solid #33485e;border-radius:8px;padding:12px;background:#090e19}.line{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.fine{font-size:12px;color:#9bacbe}.out{font:12px monospace;white-space:pre-wrap;background:#0e1724;padding:12px;border-radius:8px;overflow-wrap:anywhere}
 </style></head><body>
-<h1>Sky Weather — live five-panel preview</h1>
+<h1>Sky-Weather-Wide — live five-panel preview</h1>
 <p>Interactive layout simulation. Changes update the canvas immediately without saving. The actual LEDMatrix Python renderer is available through the core's developer preview server; this standalone page does not connect to Home Assistant or render radar tiles.</p>
 <div class="panel controls">
 <label>Display preset<select id="size"><option value="320x32">Five 64×32 P5 panels — 320×32</option><option value="320x64">320×64</option><option value="256x32">256×32</option><option value="128x32">128×32</option><option value="custom">Custom</option></select></label>

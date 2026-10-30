@@ -3,12 +3,12 @@
 if(!window.LEDMatrixWidgets)return;
 const widgets=window.LEDMatrixWidgets;
 widgets.register('sky-weather-live',{
- name:'Animated Sky Weather Preview',version:'1.1.4',
+ name:'Animated Sky-Weather-Wide Preview',version:'1.1.4',
  render:function(container,config,value,options){
   const key=String(options.fieldId||container.id).replace(/[^\w-]/g,'_');
   const style='padding:4px;border:1px solid #5d7185;border-radius:5px;background:#0b1726;color:#eff8ff';
   container.innerHTML='<div style="padding:12px;background:#111e2e;color:#edf6ff;border:1px solid #42556c;border-radius:12px">'+
-   '<strong>Animated Sky Weather preview</strong><p style="font-size:12px;margin:6px 0;color:#b8c8dc">Animated weather, day/night sky, moon, clouds and precipitation. Updates without saving.</p>'+
+   '<strong>Animated Sky-Weather-Wide preview</strong><p style="font-size:12px;margin:6px 0;color:#b8c8dc">Animated weather, day/night sky, moon, clouds and precipitation. Updates without saving.</p>'+
    '<div style="display:flex;flex-wrap:wrap;gap:9px;margin:8px 0">'+
    '<label>Pixels <select data-size style="'+style+'"><option value="320x32">5 × P5 (320×32)</option><option value="320x64">320×64</option><option value="256x32">256×32</option><option value="128x32">128×32</option></select></label>'+
    '<label>Scene <select data-scene style="'+style+'"><option value="auto">Automatic</option><option value="sunny">Sunny</option><option value="partlycloudy">Cloudy</option><option value="rainy">Rain</option><option value="snowy">Snow</option><option value="lightning-rainy">Storm</option><option value="clear-night">Night</option></select></label>'+

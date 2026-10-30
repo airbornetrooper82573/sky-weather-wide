@@ -2,13 +2,13 @@
 
 **Animated embedded preview (1.1.4):** The built-in LEDMatrix settings widget animates moving clouds, stars, sun/moon, rain, snow, and storm flashes, including five-panel 320×32 simulation, and responds to settings changes without saving. **It is a browser animation approximating the layout, not frames from the Python renderer.** The LEDMatrix core developer preview renders the real Python frame for pixel-accurate evaluation. Radar's widget view uses demonstration precipitation only. No live Home Assistant data or tokens are sent to the preview.
 
-# Sky Weather Wide — LEDMatrix Weather Plugin
+# Sky-Weather-Wide — LEDMatrix Weather Plugin
 
 Based on [ant456 Sky Weather](https://github.com/ant456/ledmatrix-plugins/tree/main/sky-weather) (GPL-3.0). This adaptation retains the 128×32 weather animation as central pixel art while filling the extra horizontal space with readable now/forecast information. It does not stretch/weather distort the original art. Size comes from LEDMatrix `display_manager.width` and `.height` and is suited to five horizontally chained P5 panels. Configure `wide_layout: dashboard` (default) or `center`. The Home Assistant token is masked in the settings schema. RainViewer radar already renders at the matrix's native dimensions.
 
 **Installation**: install from this plugin directory in LEDMatrix, then configure `ha_url`, `ha_token`, and `weather_entity` in the plugin UI. `test_mode: true` allows weather animations without HA; turn it off afterward. Native display must be at least 128x32.
 
-**Embedded settings preview (v1.1.3):** The plugin declares a `sky-weather-live` widget on `live_preview` in the config schema. In compatible LEDMatrix core versions, a simulated five-panel canvas appears right in the Sky Weather settings tab. It redraws immediately on other form changes; it does not save or fetch Home Assistant data. The controls inside the widget set its simulated dimensions and can export a PNG. The widget loader requires support for plugin-supplied widgets. This is not pixel-perfect and is separate from the Python-renderer developer preview.\n\n**Standalone live preview:** Open [preview.html](preview.html) locally in your browser for a self-contained interactive 320×32 layout simulator. It updates instantly as you change layout, dimensions, page, condition, and temperature, without needing a Home Assistant connection. This is a **layout simulator**, not pixel-exact Python rendering or a widget embedded in LEDMatrix's production settings page. For the **actual plugin renderer** use the LEDMatrix core `python scripts/dev_server.py --extra-dir /path/to/this/repo/plugins/sky-weather` and open `http://localhost:5001`, select `sky-weather`, turn on `test_mode`, and select 320×32. Its config form updates the Python-rendered preview automatically.
+**Embedded settings preview (v1.1.3):** The plugin declares a `sky-weather-live` widget on `live_preview` in the config schema. In compatible LEDMatrix core versions, a simulated five-panel canvas appears right in the Sky-Weather-Wide settings tab. It redraws immediately on other form changes; it does not save or fetch Home Assistant data. The controls inside the widget set its simulated dimensions and can export a PNG. The widget loader requires support for plugin-supplied widgets. This is not pixel-perfect and is separate from the Python-renderer developer preview.\n\n**Standalone live preview:** Open [preview.html](preview.html) locally in your browser for a self-contained interactive 320×32 layout simulator. It updates instantly as you change layout, dimensions, page, condition, and temperature, without needing a Home Assistant connection. This is a **layout simulator**, not pixel-exact Python rendering or a widget embedded in LEDMatrix's production settings page. For the **actual plugin renderer** use the LEDMatrix core `python scripts/dev_server.py --extra-dir /path/to/this/repo/sky-weather-wide` and open `http://localhost:5001`, select `sky-weather-wide`, turn on `test_mode`, and select 320×32. Its config form updates the Python-rendered preview automatically.
 
 **Limitations**: sidebar is a compact overview and not a full 320-pixel redesign of each page. There is no built-in live settings preview in this revision. Validate with your LEDMatrix core and actual five-panel wiring before relying on production rotation.
 
@@ -80,7 +80,7 @@ Active alerts come from the Home Assistant `nws_alerts` integration (the sensor'
 ## Setup
 
 ```json
-"sky-weather": {
+"sky-weather-wide": {
   "enabled": true,
   "display_duration": 45,
   "ha_url": "http://homeassistant.local:8123",
@@ -95,8 +95,13 @@ Active alerts come from the Home Assistant `nws_alerts` integration (the sensor'
 * `pages` sets which pages show and in what order, for example `["now", "moon"]`.
 * One request per `poll_seconds` (60) reads conditions and alerts; the forecast is refreshed every `forecast_seconds` (600). Drawing only reads from memory, so the panel never waits on the network. If Home Assistant goes quiet the last values stay up, and after ten minutes a NO WEATHER DATA screen takes over.
 
-`test_mode: true` plays a made-up day: a 30-second time-lapse of the sky (clear dawn, clouds, a thunderstorm, a golden sunset, the Moon coming up), then every page and two alerts. Turn it off afterwards. Display mode: `sky_weather`.
+`test_mode: true` plays a made-up day: a 30-second time-lapse of the sky (clear dawn, clouds, a thunderstorm, a golden sunset, the Moon coming up), then every page and two alerts. Turn it off afterwards. Display mode: `sky_weather_wide`.
 
 **Radar.** The radar page uses the radar code from the Weather Display plugin of the [LEDMatrix project](https://github.com/ChuckBuilds/ledmatrix-plugins) (GPL-3.0, Copyright (C) 2025 LEDMatrix Team), copied into `sky_radar.py` and `sky_maptiles.py` with only names changed. Frames come from RainViewer and the map from CARTO (no keys needed). It downloads in its own thread, caches tiles, and only joins the rotation once it has frames, so a slow connection never delays the weather. Turn it off with `"radar": false`; tune it with the `radar_*` settings (range in miles, map style, brightness, frame speed, nowcast frames).
 
 Files: `manager.py` (plugin and polling thread), `sky_data.py` (Home Assistant calls and parsing), `sky_astro.py` (sun, Moon and phase maths), `sky_render.py` (the sky and every page), `sky_radar.py` / `sky_maptiles.py` (radar, from the Weather Display plugin), `data/us-states.geojson` (vector map fallback), `sky_draw.py` / `sky_font.py` (drawing kit), `bdf_face.py` (BDF fonts). Tests: `test_sky.py`.
+
+
+## Plugin identity
+
+The LEDMatrix plugin name is **Sky-Weather-Wide**, manifest ID/config key `sky-weather-wide`, display mode `sky_weather_wide`. This is distinct from the original `sky-weather`. Existing settings under `sky-weather` need transferring manually. Upstream attribution intentionally retains the original author/title.
