@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sky Weather — Live Layout Preview</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,Arial;background:#101827;color:#f5f7ff}*{box-sizing:border-box}body{margin:0;padding:24px;max-width:1100px;margin:auto}h1{font-size:23px;margin:0 0 8px}p{color:#adbace;line-height:1.5}.panel{background:#1c2839;border:1px solid #34465c;border-radius:14px;padding:16px;margin:16px 0}.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:#cbd8e9}input,select,button{background:#111a29;border:1px solid #536880;border-radius:8px;color:white;padding:9px;font:inherit}input[type=range]{padding:4px}button{cursor:pointer}canvas{image-rendering:pixelated;width:100%;height:auto;background:#061426;display:block}#stage{overflow:auto;border:1px solid #33485e;border-radius:8px;padding:12px;background:#090e19}.line{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.fine{font-size:12px;color:#9bacbe}.out{font:12px monospace;white-space:pre-wrap;background:#0e1724;padding:12px;border-radius:8px;overflow-wrap:anywhere}
+</style></head><body>
+<h1>Sky Weather — live five-panel preview</h1>
+<p>Interactive layout simulation. Changes update the canvas immediately without saving. The actual LEDMatrix Python renderer is available through the core's developer preview server; this standalone page does not connect to Home Assistant or render radar tiles.</p>
+<div class="panel controls">
+<label>Display preset<select id="size"><option value="320x32">Five 64×32 P5 panels — 320×32</option><option value="320x64">320×64</option><option value="256x32">256×32</option><option value="128x32">128×32</option><option value="custom">Custom</option></select></label>
+<label>Width (pixels)<input id="w" type="number" min="128" max="1024" value="320"></label>
+<label>Height (pixels)<input id="h" type="number" min="32" max="128" value="32"></label>
+<label>Layout<select id="layout"><option value="dashboard">Wide dashboard</option><option value="center">Centered original</option></select></label>
+<label>Page<select id="page"><option value="now">Current sky</option><option value="sun">Sunrise / sunset</option><option value="moon">Moon</option><option value="hourly">Hourly</option><option value="daily">Daily</option><option value="details">Details</option><option value="radar">Radar layout</option></select></label>
+<label>Conditions<select id="condition"><option value="sunny">Sunny</option><option value="partlycloudy">Partly cloudy</option><option value="rainy">Rain</option><option value="snowy">Snow</option><option value="lightning-rainy">Thunderstorm</option><option value="clear-night">Clear night</option></select></label>
+<label>Local hour <span id="hourLabel">15:00</span><input id="hour" type="range" min="0" max="23" value="15"></label>
+<label>Temperature (°F)<input id="temp" type="number" min="-50" max="130" value="72"></label>
+<label>Forecast rain %<input id="rain" type="range" min="0" max="100" value="20"></label>
+</div>
+<div class="panel"><div class="line"><strong id="dimensions">320 × 32 px</strong><button id="save">Save preview PNG</button><button id="config">Copy example settings JSON</button></div><p class="fine">Pixels enlarged for readability. The centered 128×32 artwork and sidebars reflect the port's basic layout, not its complete animation fidelity.</p><div id="stage"><canvas id="canvas" width="320" height="32"></canvas></div></div>
+<div class="panel"><strong>Sample LEDMatrix configuration</strong><pre id="json" class="out"></pre><p class="fine">This is only the preview-specific portion of the configuration. Enter Home Assistant URL, token and weather entity in LEDMatrix settings; never paste credentials into this page.</p></div>
+<script>
+const $=id=>document.getElementById(id), canvas=$('canvas'),ctx=canvas.getContext('2d');let tick=0;
+function read(){return {w:Math.max(128,Math.min(1024,+$('w').value||320)),h:Math.max(32,Math.min(128,+$('h').value||32)),wide_layout:$('layout').value,page:$('page').value,condition:$('condition').value,hour:+$('hour').value,temp:+$('temp').value||0,rain:+$('rain').value}}
+function rect(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.max(0,Math.round(w)),Math.max(0,Math.round(h)))}
+function text(t,x,y,color='#e8f1fb'){ctx.fillStyle=color;ctx.font='8px monospace';ctx.fillText(String(t),Math.round(x),Math.round(y))}
+function draw(){const s=read();canvas.width=s.w;canvas.height=s.h;ctx.imageSmoothingEnabled=false;
+const night=s.hour<6||s.hour>=20, dawn=s.hour===6||s.hour===19;let sky=night?'#0b1332':dawn?'#864c75':'#235f9d';rect(0,0,s.w,s.h,sky);
+const artW=128,artH=32,x=(s.w-artW)/2,y=(s.h-artH)/2;
+if(s.page==='radar'){rect(0,0,s.w,s.h,'#152a3b');for(let i=0;i<22;i++){const px=(i*71+29)%s.w,py=(i*17+6)%s.h;rect(px,py,18,3,'#214c47')}text('RADAR  •  LIVE FRAME REQUIRES RAINVIEWER',8,s.h/2,'#b3cce4')}
+else {
+rect(x,y,artW,artH,sky);if(!night){rect(x,y+25,artW,7,'#25506a');for(let i=0;i<8;i++)rect(x+i*18,y+23+(i%3),12,9,'#243647')}
+else{for(let i=0;i<16;i++)rect(x+(i*23+tick/10)%126,y+(i*7)%19,1,1,'#ffffff');rect(x,y+26,128,6,'#131c2f')}
+if(s.page==='now'){if(!night){rect(x+102,y+5,8,8,'#ffd27a');rect(x+100,y+7,12,4,'#ffd27a')}else{rect(x+105,y+4,9,9,'#dbe4dd');rect(x+109,y+3,8,8,sky)}text(s.temp+'°',x+7,y+14);text(s.condition.replace('-',' '),x+6,y+26,'#ffffff')}
+else if(s.page==='sun'){text('SUNRISE     SUNSET',x+8,y+11);text('06:45       18:34',x+8,y+24,'#ffe2a1')}
+else if(s.page==='moon'){text('MOON',x+8,y+11);rect(x+83,y+5,20,20,'#c0cbdc');rect(x+91,y+5,13,20,sky);text('WAXING',x+8,y+24)}
+else if(s.page==='hourly'||s.page==='daily'){text(s.page==='daily'?'FIVE DAY FORECAST':'HOURLY FORECAST',x+6,y+10);for(let i=0;i<5;i++)text((s.temp-i*2)+'°',x+5+i*25,y+25)}
+else{ text(s.page==='details'?'WIND  HUMID  UV  RAIN':'SKY WEATHER',x+5,y+17)}
+if(s.condition==='rainy'||s.condition==='lightning-rainy'||s.condition==='snowy'){for(let i=0;i<24;i++)rect(x+(i*19+tick/3)%128,y+((i*9+tick/5)%29),1,2,s.condition==='snowy'?'#dcecff':'#7ecafa')}
+if(s.w>=192&&s.wide_layout==='dashboard'){const left=x-4,right=x+132;rect(0,y,x-4,32,'#172a43');rect(right,y,s.w-right,32,'#172a43');if(x>=62){text('CURRENT',4,y+10,'#ffd27a');text(s.temp+'°F',4,y+20);text(s.condition.slice(0,Math.floor((x-8)/5)),4,y+30,'#c6d3e9')}if(s.w-right>=54){text('FORECAST',right,y+10,'#ffd27a');text('Next '+(s.temp-2)+'°',right,y+20);text('Rain '+s.rain+'%',right,y+30,'#c6d3e9')}}
+}
+$('dimensions').textContent=s.w+' × '+s.h+' px';$('hourLabel').textContent=String(s.hour).padStart(2,'0')+':00';$('json').textContent=JSON.stringify({wide_layout:s.wide_layout,pages:[s.page],test_mode:true},null,2);
+}
+for(const el of document.querySelectorAll('input,select'))el.addEventListener('input',e=>{if(e.target.id==='size'&&e.target.value!=='custom'){const [w,h]=e.target.value.split('x');$('w').value=w;$('h').value=h}if(['w','h'].includes(e.target.id))$('size').value='custom';draw()});
+$('save').onclick=()=>{const a=document.createElement('a');a.download='sky-weather-preview.png';a.href=canvas.toDataURL('image/png');a.click()};
+$('config').onclick=()=>navigator.clipboard.writeText($('json').textContent).catch(()=>alert('Select and copy the JSON manually.'));
+draw();setInterval(()=>{tick++;draw()},100);
+</script></body></html>

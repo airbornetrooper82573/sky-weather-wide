@@ -1,0 +1,74 @@
+{
+  "id": "sky-weather",
+  "name": "Sky Weather",
+  "version": "1.1.3",
+  "description": "A weather display that follows the sky. The backdrop is coloured by the real sun (night, dawn, blue day, golden hour, dusk), the sun and Moon ride their arcs, the Moon shows its true phase and tilt for your location, and clouds, rain, snow, fog and lightning come from the current conditions. Pages for sunrise / sunset, the Moon, hourly and daily forecasts and details, an animated precipitation radar, plus a page for every active National Weather Service alert. Reads everything from Home Assistant. Adapted for wide multi-panel LEDMatrix layouts.",
+  "author": "ant456",
+  "entry_point": "manager.py",
+  "class_name": "SkyWeatherPlugin",
+  "category": "weather",
+  "tags": [
+    "weather",
+    "sun",
+    "moon",
+    "sunrise",
+    "sunset",
+    "alerts",
+    "home-assistant",
+    "radar"
+  ],
+  "icon": "fas fa-cloud-sun",
+  "display_modes": [
+    "sky_weather"
+  ],
+  "update_interval": 60,
+  "default_duration": 45,
+  "config_schema": "config_schema.json",
+  "versions": [
+    {
+      "version": "1.1.3",
+      "released": "2026-10-30",
+      "ledmatrix_min": "2.0.0",
+      "notes": "Embed a live updating five-panel layout preview directly into the LEDMatrix plugin settings via a declared plugin widget."
+    },
+    {
+      "version": "1.1.2",
+      "released": "2026-10-30",
+      "ledmatrix_min": "2.0.0",
+      "notes": "Add self-contained interactive wide-layout preview and documentation of core's live Python renderer dev preview."
+    },
+    {
+      "version": "1.1.1",
+      "released": "2026-10-30",
+      "ledmatrix_min": "2.0.0",
+      "notes": "Wide-display dashboard layout for multi-panel matrix, module namespaced imports, and masked HA token."
+    },
+    {
+      "version": "1.1.0",
+      "released": "2026-10-29",
+      "ledmatrix_min": "2.0.0",
+      "notes": "Adds the animated precipitation radar page (RainViewer frames over a dimmed map, code from the Weather Display plugin) with its own background thread; the page appears once its frames have loaded and stays up for about two loops."
+    },
+    {
+      "version": "1.0.0",
+      "released": "2026-10-29",
+      "ledmatrix_min": "2.0.0",
+      "notes": "First release: time-of-day sky with sun and Moon arcs, true Moon phase and tilt for the HA location, weather-driven clouds / rain / snow / fog / lightning, pages for now, sun, moon, hourly, daily and details, NWS alert pages from Home Assistant, test_mode time-lapse demo."
+    }
+  ],
+  "requires": {
+    "python": ">=3.9",
+    "display_size": {
+      "min_width": 128,
+      "min_height": 32
+    }
+  },
+  "license": "GPL-3.0",
+  "widgets": [
+    {
+      "name": "sky-weather-live",
+      "script": "sky-weather-live.js",
+      "description": "Inline Sky Weather display layout preview"
+    }
+  ]
+}
