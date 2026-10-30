@@ -1,4 +1,8 @@
-# Sky Weather — wide LEDMatrix adaptation
+**Standalone repository:** https://github.com/airbornetrooper82573/sky-weather-wide
+
+**Animated embedded preview (1.1.4):** The built-in LEDMatrix settings widget animates moving clouds, stars, sun/moon, rain, snow, and storm flashes, including five-panel 320×32 simulation, and responds to settings changes without saving. **It is a browser animation approximating the layout, not frames from the Python renderer.** The LEDMatrix core developer preview renders the real Python frame for pixel-accurate evaluation. Radar's widget view uses demonstration precipitation only. No live Home Assistant data or tokens are sent to the preview.
+
+# Sky Weather Wide — LEDMatrix Weather Plugin
 
 Based on [ant456 Sky Weather](https://github.com/ant456/ledmatrix-plugins/tree/main/sky-weather) (GPL-3.0). This adaptation retains the 128×32 weather animation as central pixel art while filling the extra horizontal space with readable now/forecast information. It does not stretch/weather distort the original art. Size comes from LEDMatrix `display_manager.width` and `.height` and is suited to five horizontally chained P5 panels. Configure `wide_layout: dashboard` (default) or `center`. The Home Assistant token is masked in the settings schema. RainViewer radar already renders at the matrix's native dimensions.
 
