@@ -419,7 +419,10 @@ class RadarFetcher:
             resp = requests.get(url, params=params, timeout=10, headers=_HEADERS)
             resp.raise_for_status()
             if resp.content[:4] != b"\x89PNG":
+                logger.warning("[Radar] %s returned non-PNG radar tile from %s", self.radar_provider, url)
                 return None
+            if self.radar_provider == "radrview" and len(resp.content) < 100:
+                logger.info("[Radar] RadrView empty transparent tile at z=%s x=%s y=%s", zoom, tx, ty)
             if cache_path is not None:
                 try:
                     cache_path.write_bytes(resp.content)
@@ -427,7 +430,7 @@ class RadarFetcher:
                     logger.debug("[Radar] Could not cache radar tile: %s", e)
             return Image.open(BytesIO(resp.content)).convert("RGBA")
         except Exception as e:
-            logger.debug(f"[Radar] Tile fetch failed ({url}): {e}")
+            logger.warning("[Radar] %s radar tile failed (%s): %s", self.radar_provider, url.split("?")[0], e)
             return None
 
     def _build_frame_image(self, frame: RadarFrame, viewport: MercatorViewport,
@@ -496,7 +499,7 @@ class RadarFetcher:
                     self._last_index_poll = time.time()
                     self._purge_radar_tile_cache()
                 else:
-                    logger.error("[Radar] RainViewer index contained no frames")
+                    logger.error("[Radar] %s index contained no frames", self.radar_provider)
                     self._last_index_poll = time.time() - max(0.0, self._poll_interval - 60)
             else:
                 # Retry the index in ~60s rather than a full interval.

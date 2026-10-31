@@ -201,6 +201,8 @@ class SkyWeatherPlugin(BasePlugin):
         if sig == self._radar_sig and self._radar is not None:
             return
         from sky_weather_radar import RadarFetcher                    # lazy: pulls in requests and the tile code
+        self.logger.info("Radar settings: provider=%s API=%s map_style=%s basemap_server=%s",
+                         cfg["provider"], cfg["provider_url"], cfg["map_style"], cfg["tile_server"] or "default")
         self._radar = RadarFetcher(
             self.lat, self.lon, cfg["range_miles"], self.cache_manager, map_style=cfg["map_style"],
             custom_tile_server=cfg["tile_server"] or None,
@@ -231,7 +233,7 @@ class SkyWeatherPlugin(BasePlugin):
     def _radar_ready(self) -> bool:
         """True once the radar has at least one finished frame to play."""
         f = self._radar
-        return bool(self.radar_on and f is not None and f._playback_frames())
+        return bool(self.radar_on and f is not None and f._viewport is not None)
 
     def _radar_page_seconds(self) -> float:
         if self.radar_seconds:

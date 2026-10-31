@@ -180,7 +180,7 @@ class BasemapTileFetcher:
         return None
 
     def _cache_key(self) -> str:
-        if self.style == "osm" and self.custom_tile_server:
+        if self.custom_tile_server:
             host = urlparse(self.custom_tile_server).netloc or "custom"
             return "custom-" + "".join(c if c.isalnum() or c in ".-" else "_"
                                        for c in host)
@@ -188,9 +188,13 @@ class BasemapTileFetcher:
 
     def _tile_urls(self, tx: int, ty: int, zoom: int) -> List[str]:
         urls = []
+        if self.custom_tile_server:
+            prefix = self.custom_tile_server
+            if "{z}" in prefix and "{x}" in prefix and "{y}" in prefix:
+                urls.append(prefix.replace("{z}", str(zoom)).replace("{x}", str(tx)).replace("{y}", str(ty)))
+            else:
+                urls.append(f"{prefix}/{zoom}/{tx}/{ty}.png")
         if self.style == "osm":
-            if self.custom_tile_server:
-                urls.append(f"{self.custom_tile_server}/tile/{zoom}/{tx}/{ty}.png")
             urls += [
                 f"https://tile.openstreetmap.org/{zoom}/{tx}/{ty}.png",
                 f"https://a.tile.openstreetmap.org/{zoom}/{tx}/{ty}.png",
@@ -246,7 +250,7 @@ class BasemapTileFetcher:
                         self.logger.warning(f"[Radar] Could not cache tile: {e}")
                 return img.convert("RGB")
             except Exception as e:
-                self.logger.debug(f"[Radar] Basemap tile fetch failed from {url}: {e}")
+                self.logger.warning("[Radar] Basemap tile fetch failed (%s): %s", url.split("?")[0], e)
         return None
 
     def get_basemap(self, viewport: MercatorViewport,
