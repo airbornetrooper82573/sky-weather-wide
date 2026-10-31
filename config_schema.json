@@ -168,11 +168,15 @@
         "esri",
         "vector"
       ],
-      "default": "carto_dark"
+      "default": "carto_dark",
+      "title": "Background Map Source",
+      "description": "Choose OSM, CARTO light/dark, Esri or offline vector map. Optional custom XYZ URL is tried first. RainViewer provides precipitation data independently."
     },
     "radar_tile_server": {
       "type": "string",
-      "description": "BACKGROUND BASEMAP ONLY: optional OSM XYZ tile server, used only with radar_map_style=osm. Does not set radar data provider."
+      "title": "Custom Basemap XYZ URL (optional)",
+      "default": "",
+      "description": "Override background map tiles using an XYZ URL template such as https://example.com/{z}/{x}/{y}.png. Leave blank for selected map style's default. This does NOT change RainViewer precipitation radar."
     },
     "radar_map_brightness": {
       "type": "number",
@@ -251,41 +255,6 @@
       "default": "preview",
       "x-widget": "sky-weather-live",
       "description": "Shows a simulated display in these settings and refreshes before saving. For pixel-identical rendering, use the LEDMatrix developer preview server."
-    },
-    "radar_provider": {
-      "type": "string",
-      "title": "Radar Data Provider",
-      "enum": [
-        "rainviewer",
-        "radrview"
-      ],
-      "default": "rainviewer",
-      "description": "RainViewer (original) or RadrView (MRMS/NEXRAD). Independent from the background map tile server."
-    },
-    "radrview_url": {
-      "type": "string",
-      "title": "RadrView API URL",
-      "default": "https://radrview.com",
-      "description": "RadrView API base URL, not a /tile/... address; self-hosted example http://localhost:8600. Must be reachable from the Raspberry Pi."
-    },
-    "radrview_source": {
-      "type": "string",
-      "title": "RadrView Radar Source",
-      "default": "composite",
-      "description": "RadrView source, e.g. composite or mrms."
-    },
-    "radrview_palette": {
-      "type": "string",
-      "title": "RadrView Palette",
-      "enum": [
-        "default",
-        "dark",
-        "noaa",
-        "viridis",
-        "grayscale",
-        "precip-type"
-      ],
-      "default": "dark"
     }
   }
 }

@@ -181,9 +181,8 @@ class BasemapTileFetcher:
 
     def _cache_key(self) -> str:
         if self.custom_tile_server:
-            host = urlparse(self.custom_tile_server).netloc or "custom"
-            return "custom-" + "".join(c if c.isalnum() or c in ".-" else "_"
-                                       for c in host)
+            import hashlib
+            return "custom-" + hashlib.sha256(self.custom_tile_server.encode("utf-8")).hexdigest()[:16]
         return self.style
 
     def _tile_urls(self, tx: int, ty: int, zoom: int) -> List[str]:
@@ -197,8 +196,6 @@ class BasemapTileFetcher:
         if self.style == "osm":
             urls += [
                 f"https://tile.openstreetmap.org/{zoom}/{tx}/{ty}.png",
-                f"https://a.tile.openstreetmap.org/{zoom}/{tx}/{ty}.png",
-                f"https://b.tile.openstreetmap.org/{zoom}/{tx}/{ty}.png",
             ]
         elif self.style in ("carto", "carto_dark"):
             layer = "light_all" if self.style == "carto" else "dark_all"

@@ -1,7 +1,7 @@
 {
   "id": "sky-weather-wide",
   "name": "Sky-Weather-Wide",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "A weather display that follows the sky. The backdrop is coloured by the real sun (night, dawn, blue day, golden hour, dusk), the sun and Moon ride their arcs, the Moon shows its true phase and tilt for your location, and clouds, rain, snow, fog and lightning come from the current conditions. Pages for sunrise / sunset, the Moon, hourly and daily forecasts and details, an animated precipitation radar, plus a page for every active National Weather Service alert. Reads everything from Home Assistant. Adapted for wide multi-panel LEDMatrix layouts.",
   "author": "ant456",
   "entry_point": "manager.py",
@@ -25,6 +25,12 @@
   "default_duration": 45,
   "config_schema": "config_schema.json",
   "versions": [
+    {
+      "version": "1.1.8",
+      "released": "2026-10-31",
+      "ledmatrix_min": "2.0.0",
+      "notes": "Remove RadrView provider integration. RainViewer remains sole precipitation source; improve independently configurable map source and custom XYZ basemap URL cache handling."
+    },
     {
       "version": "1.1.7",
       "released": "2026-10-31",

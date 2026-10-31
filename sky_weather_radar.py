@@ -191,10 +191,6 @@ class RadarFetcher:
                  cache_manager: Any = None, *,
                  map_style: str = "osm",
                  custom_tile_server: Optional[str] = None,
-                 radar_provider: str = "rainviewer",
-                 radrview_url: str = "https://radrview.com",
-                 radrview_source: str = "composite",
-                 radrview_palette: str = "dark",
                  line_color: Tuple[int, int, int] = (0, 130, 70),
                  fill_color: Optional[Tuple[int, int, int]] = (15, 25, 15),
                  map_brightness: float = 0.5,
@@ -216,10 +212,6 @@ class RadarFetcher:
         self.frame_seconds = max(0.1, float(frame_seconds))
         self.loop_pause_seconds = max(0.0, float(loop_pause_seconds))
         self.plugin_id = plugin_id
-        self.radar_provider = radar_provider if radar_provider in ("rainviewer", "radrview") else "rainviewer"
-        self.radrview_url = radrview_url.rstrip("/")
-        self.radrview_source = radrview_source
-        self.radrview_palette = radrview_palette
 
         self._basemap_fetcher = BasemapTileFetcher(
             cache_manager, style=map_style,
@@ -271,7 +263,7 @@ class RadarFetcher:
         # timestamp; nowcast frames use a per-generation hash, so a regenerated
         # prediction never reuses a stale cached tile).
         seg = path.rstrip("/").rsplit("/", 1)[-1] or "frame"
-        seg = self.radar_provider + "_" + self.radrview_source + "_" + self.radrview_palette + "_" + seg
+        seg = "rainviewer_" + seg
         seg = "".join(c if c.isalnum() or c in "._-" else "_" for c in seg)
         return self._radar_cache_dir / f"{seg}_{zoom}_{tx}_{ty}.png"
 
@@ -339,29 +331,6 @@ class RadarFetcher:
     # ---- RainViewer index -------------------------------------------------
 
     def _fetch_index(self) -> Optional[Dict]:
-        if self.radar_provider == "radrview":
-            try:
-                resp = requests.get(
-                    self.radrview_url + "/frames",
-                    params={"source": self.radrview_source, "limit": self.past_frames},
-                    timeout=10, headers=_HEADERS)
-                resp.raise_for_status()
-                frames = resp.json().get("frames", [])
-                past = []
-                for item in frames:
-                    stamp = str(item.get("timestamp", ""))
-                    if len(stamp) != 14 or not stamp.isdigit():
-                        continue
-                    # RadrView uses YYYYMMDDHHMMSS; playback uses UNIX seconds.
-                    ts = int(datetime.strptime(stamp, "%Y%m%d%H%M%S").replace(
-                        tzinfo=__import__("datetime").timezone.utc).timestamp())
-                    past.append({"path": "/radrview/" + stamp, "time": ts})
-                if not past:
-                    logger.warning("[Radar] RadrView returned no frames for source %s", self.radrview_source)
-                return {"radar": {"past": past}} if past else None
-            except Exception as exc:
-                logger.warning("[Radar] RadrView frame index failed (%s): %s", self.radrview_url, exc)
-                return None
         try:
             resp = requests.get(_MAPS_URL, timeout=10, headers=_HEADERS)
             resp.raise_for_status()
@@ -408,21 +377,13 @@ class RadarFetcher:
                 logger.debug("[Radar] Bad cached radar tile %s: %s", cache_path, e)
         if deadline is not None and time.time() > deadline:
             return None
-        if self.radar_provider == "radrview":
-            stamp = path.rsplit("/", 1)[-1]
-            url = f"{self.radrview_url}/tile/{stamp}/{zoom}/{tx}/{ty}"
-            params = {"palette": self.radrview_palette, "source": self.radrview_source}
-        else:
-            url = f"https://tilecache.rainviewer.com{path}/{TILE_SIZE}/{zoom}/{tx}/{ty}/2/1_1.png"
-            params = None
+        url = f"https://tilecache.rainviewer.com{path}/{TILE_SIZE}/{zoom}/{tx}/{ty}/2/1_1.png"
         try:
-            resp = requests.get(url, params=params, timeout=10, headers=_HEADERS)
+            resp = requests.get(url, timeout=10, headers=_HEADERS)
             resp.raise_for_status()
             if resp.content[:4] != b"\x89PNG":
-                logger.warning("[Radar] %s returned non-PNG radar tile from %s", self.radar_provider, url)
+                logger.warning("[Radar] RainViewer returned non-PNG radar tile from %s", url)
                 return None
-            if self.radar_provider == "radrview" and len(resp.content) < 100:
-                logger.info("[Radar] RadrView empty transparent tile at z=%s x=%s y=%s", zoom, tx, ty)
             if cache_path is not None:
                 try:
                     cache_path.write_bytes(resp.content)
@@ -430,7 +391,7 @@ class RadarFetcher:
                     logger.debug("[Radar] Could not cache radar tile: %s", e)
             return Image.open(BytesIO(resp.content)).convert("RGBA")
         except Exception as e:
-            logger.warning("[Radar] %s radar tile failed (%s): %s", self.radar_provider, url.split("?")[0], e)
+            logger.warning("[Radar] RainViewer tile failed (%s): %s", url.split("?")[0], e)
             return None
 
     def _build_frame_image(self, frame: RadarFrame, viewport: MercatorViewport,
@@ -444,7 +405,7 @@ class RadarFetcher:
         with the (deeper) basemap. This avoids RainViewer's "Zoom Level Not
         Supported" placeholder tile while keeping radar registered to the map.
         """
-        rv = viewport if self.radar_provider == "radrview" else self._radar_viewport(viewport)
+        rv = self._radar_viewport(viewport)
         x0, y0, x1, y1 = rv.tile_range()
         mosaic = Image.new("RGBA", (rv.view_w, rv.view_h), (0, 0, 0, 0))
         for tx in range(x0, x1 + 1):
@@ -499,7 +460,7 @@ class RadarFetcher:
                     self._last_index_poll = time.time()
                     self._purge_radar_tile_cache()
                 else:
-                    logger.error("[Radar] %s index contained no frames", self.radar_provider)
+                    logger.error("[Radar] RainViewer index contained no frames")
                     self._last_index_poll = time.time() - max(0.0, self._poll_interval - 60)
             else:
                 # Retry the index in ~60s rather than a full interval.

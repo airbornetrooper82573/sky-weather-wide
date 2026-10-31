@@ -107,13 +107,11 @@ Files: `manager.py` (plugin and polling thread), `sky_data.py` (Home Assistant c
 The LEDMatrix plugin name is **Sky-Weather-Wide**, manifest ID/config key `sky-weather-wide`, display mode `sky_weather_wide`. This is distinct from the original `sky-weather`. Existing settings under `sky-weather` need transferring manually. Upstream attribution intentionally retains the original author/title.
 
 
-## Using RadrView radar data (1.1.6)
-
-In the Sky-Weather-Wide settings choose **Radar Data Provider = radrview** and **RadrView API URL = https://radrview.com** (or the root URL of your own RadrView server, typically port 8600). Set **RadrView Radar Source = composite** and a palette such as **dark**. Leave **Radar Map Style = carto_dark** for a readable background. **Radar Tile Server** is *only* the background map tile source for OSM; it is not a precipitation-radar feed.
-
-The plugin now queries RadrView `/frames?source=composite&limit=6` and fetches `/tile/{timestamp}/{z}/{x}/{y}?palette=dark&source=composite`. Frames are converted to chronological UNIX times internally and drawn on the native matrix resolution. No nowcast from RadrView. Restart or save the plugin settings to refresh the provider; allow the radar background worker to fetch frames. If your self-hosted URL is localhost, it must refer to the Raspberry Pi itself; use the server's LAN address for another host.
-
-
 ## Radar troubleshooting (1.1.7)
 
-The radar page now displays the basemap (or built-in vector state map) when precipitation frames cannot load, instead of disappearing entirely. Look for `[Radar]` messages in your LEDMatrix service logs to distinguish failed basemap tile requests from RadrView frame/tile failures. `Radar Tile Server` is a **background map** XYZ URL only and now accepts either `https://host/path/{z}/{x}/{y}.png` or a base path to which `/z/x/y.png` will be appended. Select `carto_dark` or `vector` if public OSM tiles appear blocked. The built-in vector fallback depicts US states, not roads. A RadrView API URL must respond to `/frames?source=composite&limit=6` and `/tile/{timestamp}/{z}/{x}/{y}` from the Raspberry Pi. A transparent radar tile can also mean no rain, not an error.
+The radar page now displays the basemap (or built-in vector state map) when precipitation frames cannot load, instead of disappearing entirely. Look for `[Radar]` messages in your LEDMatrix service logs to distinguish failed basemap tile requests from RadrView frame/tile failures. `Radar Tile Server` is a **background map** XYZ URL only and now accepts either `https://host/path/{z}/{x}/{y}.png` or a base path to which `/z/x/y.png` will be appended. Select `carto_dark` or `vector` if public OSM tiles appear blocked. The built-in vector fallback depicts US states, not roads. RainViewer remains the sole precipitation radar provider; transparent radar tiles can mean no rain.
+
+
+## Map source selection (1.1.8)
+
+Precipitation radar uses RainViewer. For the background map choose `radar_map_style`: `carto_dark`, `carto`, `esri`, `osm`, or `vector` (offline US state outlines). `radar_tile_server` optionally accepts a custom XYZ template such as `https://example.org/tiles/{z}/{x}/{y}.png` (or a base path with `/z/x/y.png` appended). This is only a map source, not the radar provider. Custom tile cache is isolated by the complete server URL so changing the URL cannot reuse tiles from another path on the same host.
