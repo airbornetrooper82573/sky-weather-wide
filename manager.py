@@ -113,6 +113,10 @@ class SkyWeatherPlugin(BasePlugin):
             "update_interval": int(max(60, _num(c.get("radar_update_interval"), 180))),
             "map_style": str(c.get("radar_map_style") or "carto_dark"),
             "tile_server": str(c.get("radar_tile_server") or ""),
+            "provider": str(c.get("radar_provider") or "rainviewer"),
+            "provider_url": str(c.get("radrview_url") or "https://radrview.com").strip().rstrip("/"),
+            "provider_source": str(c.get("radrview_source") or "composite"),
+            "provider_palette": str(c.get("radrview_palette") or "dark"),
             "map_brightness": min(1.0, max(0.1, _num(c.get("radar_map_brightness"), 0.5))),
             "show_nowcast": bool(c.get("radar_show_nowcast", False)),
             "past_frames": int(min(12, max(2, _num(c.get("radar_past_frames"), 6)))),
@@ -199,7 +203,9 @@ class SkyWeatherPlugin(BasePlugin):
         from sky_weather_radar import RadarFetcher                    # lazy: pulls in requests and the tile code
         self._radar = RadarFetcher(
             self.lat, self.lon, cfg["range_miles"], self.cache_manager, map_style=cfg["map_style"],
-            custom_tile_server=cfg["tile_server"] or None, line_color=cfg["line_color"], fill_color=cfg["fill_color"],
+            custom_tile_server=cfg["tile_server"] or None,
+            radar_provider=cfg["provider"], radrview_url=cfg["provider_url"],
+            radrview_source=cfg["provider_source"], radrview_palette=cfg["provider_palette"], line_color=cfg["line_color"], fill_color=cfg["fill_color"],
             map_brightness=cfg["map_brightness"], show_nowcast=cfg["show_nowcast"], past_frames=cfg["past_frames"],
             frame_seconds=cfg["frame_seconds"], loop_pause_seconds=cfg["loop_pause_seconds"], plugin_id=self.plugin_id)
         self._radar_sig = sig

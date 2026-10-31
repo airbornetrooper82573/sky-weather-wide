@@ -105,3 +105,10 @@ Files: `manager.py` (plugin and polling thread), `sky_data.py` (Home Assistant c
 ## Plugin identity
 
 The LEDMatrix plugin name is **Sky-Weather-Wide**, manifest ID/config key `sky-weather-wide`, display mode `sky_weather_wide`. This is distinct from the original `sky-weather`. Existing settings under `sky-weather` need transferring manually. Upstream attribution intentionally retains the original author/title.
+
+
+## Using RadrView radar data (1.1.6)
+
+In the Sky-Weather-Wide settings choose **Radar Data Provider = radrview** and **RadrView API URL = https://radrview.com** (or the root URL of your own RadrView server, typically port 8600). Set **RadrView Radar Source = composite** and a palette such as **dark**. Leave **Radar Map Style = carto_dark** for a readable background. **Radar Tile Server** is *only* the background map tile source for OSM; it is not a precipitation-radar feed.
+
+The plugin now queries RadrView `/frames?source=composite&limit=6` and fetches `/tile/{timestamp}/{z}/{x}/{y}?palette=dark&source=composite`. Frames are converted to chronological UNIX times internally and drawn on the native matrix resolution. No nowcast from RadrView. Restart or save the plugin settings to refresh the provider; allow the radar background worker to fetch frames. If your self-hosted URL is localhost, it must refer to the Raspberry Pi itself; use the server's LAN address for another host.
